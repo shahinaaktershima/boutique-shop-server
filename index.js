@@ -9,7 +9,10 @@ const port=process.env.PORT||5000;
 app.use(cors());
 app.use(express.json());
 
-
+app.use(cors({
+  origin: ['http://localhost:3000',"https://tradeswift.vercel.app","https://tradeswift-git-main-shimas-projects.vercel.app"],
+  credentials: true,
+}))
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d25u3si.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
@@ -40,7 +43,7 @@ const trans_id=new ObjectId().toString();
       total_amount: deposit.number,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: `http://localhost:5000/payment/success/${trans_id}`,
+      success_url: `https://tradeswift.vercel.app/payment/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
@@ -92,7 +95,7 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect(`http://localhost:3000/payment/success/${req.params.transId}`)
+      res.redirect(`https://tradeswift.vercel.app/payment/success/${req.params.transId}`)
     }
   })
 
