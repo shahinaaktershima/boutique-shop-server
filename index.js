@@ -27,11 +27,11 @@ const client = new MongoClient(uri, {
 
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
-const is_live = false
+const is_live = false;
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+   
     // await client.connect();
   const depositCollection=client.db('depositsCollection').collection('deposit')
 
