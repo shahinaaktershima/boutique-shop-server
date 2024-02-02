@@ -36,16 +36,7 @@ async function run() {
   const depositCollection=client.db('depositsCollection').collection('deposit')
   const usersCollection=client.db('treading-platfrom').collection('user');
 
-  const verifyAdmin=async(req,res,next)=>{
-    const email=req.decoded.email;
-    const query={email:email};
-    const user=await usersCollection.findOne(query);
-    const isAdmin=user?.role ==='admin';
-    if(!isAdmin){
-      return res.status(403).send({message:'forbidden access'});
-    }
-    next();
-  }
+  
   // users related api
   app.get('/user/admin/:email',async(req,res)=>{
   const email=req.params.email;
@@ -90,7 +81,7 @@ const trans_id=new ObjectId().toString();
       total_amount: deposit.number,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: `https://tradeswift.vercel.app/payment/success/${trans_id}`,
+      success_url: 'https://tradeswift.vercel.app/',
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
@@ -142,7 +133,7 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect(`https://tradeswift.vercel.app/payment/success/${req.params.transId}`)
+      res.redirect('https://tradeswift.vercel.app/')
     }
   })
 
