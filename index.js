@@ -74,7 +74,7 @@ async function run() {
     const result=await usersCollection.insertOne(user);
     res.send(result)
   });
-  app.get('/user',verifyToken,verifyAdmin,async(req,res)=>{
+  app.get('/user',async(req,res)=>{
     console.log(req.headers);
     const result=await usersCollection.find().toArray();
     res.send(result);
