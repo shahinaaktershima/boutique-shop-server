@@ -139,6 +139,7 @@ async function run() {
       res.send(result)
     })
 
+    //stripe payment
     app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
