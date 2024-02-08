@@ -42,16 +42,92 @@ const is_live = false;
 async function run() {
   try {
     // await client.connect();
-  const depositCollection=client.db('depositsCollection').collection('deposit')
+  const paymentCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
+// payment with stripe
+app.put("/user/:email", async (req, res) => {
+  const email = req.params.email;
+  const body = req.body;
+  const filter = { email: email };
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      name: body.name,
+      birth: body.birth,
+      country: body.country,
+      address: body.address,
+    },
+  };
+  const result = await usersCollection.updateOne(
+    filter,
+    updateDoc,
+    options
+  );
+  res.send(result);
+});
+app.put("/deposit/:email", async (req, res) => {
+  const email = req.params.email;
+  const amount = parseInt(req.body.amount);
+  const filter = { email: email };
+  const userInfo = await usersCollection.findOne(filter)
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      balance:amount + userInfo.balance
+    },
+  };
+  const result = await usersCollection.updateOne(
+    filter,
+    updateDoc,
+    options
+  );
+  res.send(result);
+});
 
-  
+app.put("/withdraw/:email", async (req, res) => {
+  const email = req.params.email;
+  const amount = parseInt(req.body.amount);
+  const filter = { email: email };
+  const userInfo = await usersCollection.findOne(filter)
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      balance : userInfo.balance -  amount,
+      withdraw : userInfo.withdraw + amount
+    },
+  };
+  const result = await usersCollection.updateOne(
+    filter,
+    updateDoc,
+    options
+  );
+  res.send(result);
+});
+app.post('/payment',async(req,res)=>{
+  const body = req.body;
+  const result = await paymentCollection.insertOne(body)
+  res.send(result)
+})
+ //stripe payment system
+ app.post("/create-payment-intent", async (req, res) => {
+  const { price } = req.body;
+  const amount = parseInt(price * 100);
+  // console.log(amount,price);
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: "usd",
+    payment_method_types: ["card"],
+  });
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
+});
   // users related api
   app.get('/user/admin/:email',async(req,res)=>{
   const email=req.params.email;
-  if(email!== req.decoded.email){
-  return res.status(403).send({message:'forbidden access'})
-  }
+  // if(email!== req.decoded.email){
+  // return res.status(403).send({message:'forbidden access'})
+  // }
   const query={email:email};
   const user=await usersCollection.findOne(query);
   let admin=false;
@@ -83,11 +159,11 @@ async function run() {
 
 
 const trans_id=new ObjectId().toString();
-   app.post('/deposit',async(req,res)=>{
+   app.post('/payment',async(req,res)=>{
     const deposit=req.body;
     console.log(req.body);
     const data = {
-      total_amount: deposit.number,
+      total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
       success_url: 'http://localhost:3000/userdashboard',
@@ -127,14 +203,14 @@ const trans_id=new ObjectId().toString();
   transactionId:trans_id
  }
 
- const result= depositCollection.insertOne(finalDeposit)
+ const result= paymentCollection.insertOne(finalDeposit)
       console.log('Redirecting to: ', GatewayPageURL)
   });
 
 
   app.post('/payment/success/:transId',async(req,res)=>{
     console.log(req.params.transId);
-    const result= await depositCollection.updateOne({transactionId:req.params.transId},{
+    const result= await paymentCollection.updateOne({transactionId:req.params.transId},{
       $set:{
         depositStatus:true
       }
@@ -149,8 +225,8 @@ const trans_id=new ObjectId().toString();
 
    })
 
-   app.get('/deposit',async(req,res)=>{
-    const cursor=depositCollection.find();
+   app.get('/payment',async(req,res)=>{
+    const cursor=paymentCollection.find();
     const result=await cursor.toArray();
     res.send(result)
   })
