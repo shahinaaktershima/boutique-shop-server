@@ -35,6 +35,9 @@ async function run() {
     // await client.connect();
   const depositCollection=client.db('depositsCollection').collection('deposit')
   const usersCollection=client.db('treading-platfrom').collection('user');
+  const tournamentsCollection=client.db('tournamentsCollection').collection('tournamnetDb');
+  const Complete_tournamentsCollection=client.db('tournamentsCollection').collection('complete_tournament');
+
 
   const verifyAdmin=async(req,res,next)=>{
     const email=req.decoded.email;
@@ -154,6 +157,34 @@ const trans_id=new ObjectId().toString();
     const result=await cursor.toArray();
     res.send(result)
   })
+
+  app.get('/userdashboard/tournament' , async(req,res)=>{
+   
+    const result  = await tournamentsCollection.find().toArray();
+    res.send(result);
+  } )
+
+  app.get('/userdashboard/tournament/:id', async (req, res) => {
+
+    const id = req.params.id;
+
+    const query =  { _id : new ObjectId(id) };
+
+    const result = await tournamentsCollection.findOne(query);
+
+    res.send(result);
+    
+  });
+  
+
+  app.get('/userdashboard/complete_tournament' , async(req,res)=>{
+   
+    const result  = await Complete_tournamentsCollection.find().toArray();
+    res.send(result);
+  } )
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
