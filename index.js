@@ -158,7 +158,7 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect('http://localhost:3000/userdashboard')
+      res.redirect(`http://localhost:3000/payment/success/${trans_id}`)
     }
   })
 
