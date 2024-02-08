@@ -33,7 +33,7 @@ async function run() {
   try {
    
     // await client.connect();
-  const depositCollection=client.db('depositsCollection').collection('deposit')
+  const depositCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
 
   
@@ -99,14 +99,14 @@ app.delete('/user/:id',async(req,res)=>{
 });
 
 const trans_id=new ObjectId().toString();
-   app.post('/deposit',async(req,res)=>{
+   app.post('/payment',async(req,res)=>{
     const deposit=req.body;
     console.log(req.body);
     const data = {
-      total_amount: deposit.number,
+      total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: 'http://localhost:3000/userdashboard',
+      success_url: `http://localhost:3000/payment/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
@@ -165,7 +165,7 @@ const trans_id=new ObjectId().toString();
 
    })
 
-   app.get('/deposit',async(req,res)=>{
+   app.get('/payment',async(req,res)=>{
     const cursor=depositCollection.find();
     const result=await cursor.toArray();
     res.send(result)
