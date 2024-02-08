@@ -35,6 +35,7 @@ async function run() {
     // await client.connect();
   const depositCollection=client.db('depositsCollection').collection('deposit')
   const usersCollection=client.db('treading-platfrom').collection('user');
+  const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
 
   
   // users related api
@@ -71,6 +72,18 @@ async function run() {
     res.send(result);
   });
 
+  // get all blog data api
+  app.get('/blogs',async(req,res)=>{
+    const result = await blogsCollection.find().toArray();
+    res.send(result);
+  });
+
+  // get single blog data api
+  app.get('/blogs/:id',async(req,res)=>{
+    const id = req.params.id;
+    const result = await blogsCollection.findOne({_id: new ObjectId(id)});
+    res.send(result);
+  });
 
 
 const trans_id=new ObjectId().toString();
