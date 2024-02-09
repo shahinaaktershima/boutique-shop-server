@@ -44,6 +44,19 @@ async function run() {
     // await client.connect();
   const paymentCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
+  const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
+
+    // get all blog data api
+    app.get('/blogs',async(req,res)=>{
+      const result = await blogsCollection.find().toArray();
+      res.send(result);
+    });
+    // get single blog data api
+    app.get('/blogs/:id',async(req,res)=>{
+      const id = req.params.id;
+      const result = await blogsCollection.findOne({_id: new ObjectId(id)});
+      res.send(result);
+    });
 // payment with stripe
 app.put("/user/:email", async (req, res) => {
   const email = req.params.email;
