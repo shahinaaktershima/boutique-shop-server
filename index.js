@@ -179,7 +179,7 @@ const trans_id=new ObjectId().toString();
       total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: `http://localhost:5000/payment/success/${trans_id}`,
+      success_url: `https://tradeswift-server.vercel.app/payment/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
@@ -231,7 +231,7 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect(`https://tradeswift.vercel.app/userdashboard/success/${trans_id}`)
+      res.redirect(`https://tradeswift.vercel.app/success/${trans_id}`)
     }
   })
 
