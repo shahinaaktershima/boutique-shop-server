@@ -78,6 +78,7 @@ app.put("/user/:email", async (req, res) => {
   );
   res.send(result);
 });
+
 app.put("/deposit/:email", async (req, res) => {
   const email = req.params.email;
   const amount = parseInt(req.body.amount);
@@ -137,19 +138,31 @@ app.post('/payment',async(req,res)=>{
 });
   // users related api
   app.get('/user/admin/:email',async(req,res)=>{
-  const email=req.params.email;
-  // if(email!== req.decoded.email){
-  // return res.status(403).send({message:'forbidden access'})
-  // }
-  const query={email:email};
-  const user=await usersCollection.findOne(query);
-  let admin=false;
-  if(user){
-    admin =user?.role ==='admin';
-  
-  }
-  res.send({admin})
-  })
+    const email=req.params.email;
+    // if(email!== req.decoded.email){
+    // return res.status(403).send({message:'forbidden access'})
+    // }
+    const query={email:email};
+    const user=await usersCollection.findOne(query);
+    // let admin=false;
+    // if(user){
+    //   admin =user?.role ==='admin';
+    
+    // }
+    res.send(user);
+    })
+    // for admin
+    app.patch('/user/admin/:id',async(req,res)=>{
+      const id=req.params.id;
+      const filter={_id: new ObjectId(id)}
+      const updateDoc = {
+        $set: {
+          role:'admin'
+        },
+      };
+      const result=await usersCollection.updateOne(filter,updateDoc);
+      res.send(result)
+    })
   app.post('/user',async(req,res)=>{
   
     const user=req.body;
@@ -169,7 +182,13 @@ app.post('/payment',async(req,res)=>{
     res.send(result);
   });
 
-
+// delete
+app.delete('/user/:id',async(req,res)=>{
+  const id=req.params.id;
+  const query={_id: new ObjectId(id)}
+  const result=await usersCollection.deleteOne(query);
+  res.send(result)
+});
 
 const trans_id=new ObjectId().toString();
    app.post('/payment',async(req,res)=>{
@@ -179,7 +198,7 @@ const trans_id=new ObjectId().toString();
       total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: `https://tradeswift-server.vercel.app/payment/success/${trans_id}`,
+      success_url: `https://localhost:5000/payment/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
@@ -231,7 +250,7 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect(`https://tradeswift.vercel.app/success/${trans_id}`)
+      res.redirect(`https://localhost:3000/success/${trans_id}`)
     }
   })
 
