@@ -42,6 +42,7 @@ const is_live = false;
 async function run() {
   try {
     // await client.connect();
+  const paymentCollections=client.db('treading-platfrom').collection('paymentsystem')
   const paymentCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
   const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
@@ -69,6 +70,9 @@ app.put("/user/:email", async (req, res) => {
       birth: body.birth,
       country: body.country,
       address: body.address,
+      photo: body.photo,
+      education: body.education,
+      aboutme: body.aboutme,
     },
   };
   const result = await usersCollection.updateOne(
@@ -167,7 +171,7 @@ app.post('/payment',async(req,res)=>{
   
     const user=req.body;
     // insert email if user doesn't exist :
-    // you can do this many ways (1.email unique,2. upsert  3.simple checking)
+    
     const query={email:user.email}
     const existingUser=await usersCollection.findOne(query);
     if(existingUser){
@@ -191,24 +195,18 @@ app.delete('/user/:id',async(req,res)=>{
 });
 
 const trans_id=new ObjectId().toString();
-   app.post('/payment',async(req,res)=>{
+console.log(trans_id);
+   app.post('/paymentsystem',async(req,res)=>{
     const deposit=req.body;
     console.log(req.body);
     const data = {
       total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, // use unique tran_id for each api call
-      success_url: `https://localhost:5000/payment/success/${trans_id}`,
+      success_url: `http://localhost:5000/paymentsystem/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
-      shipping_method: 'Courier',
-      product_name: 'Computer.',
-      product_category: 'Electronic',
-      product_profile: 'general',
-      cus_name: deposit.name,
-      cus_email: deposit.email,
-      cus_add1: 'Dhaka',
       cus_add2: 'Dhaka',
       cus_city: 'Dhaka',
       cus_state: 'Dhaka',
@@ -223,8 +221,15 @@ const trans_id=new ObjectId().toString();
       ship_state: 'Dhaka',
       ship_postcode: 1000,
       ship_country: 'Bangladesh',
-  };
-  console.log(data);
+      shipping_method: 'Courier',
+      product_name: 'Computer.',
+      product_category: 'Electronic',
+      product_profile: 'general',
+      cus_name: deposit.name,
+      cus_email: deposit.email,
+      cus_add1: 'Dhaka',
+    }
+  console.log(data)
   const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
   sslcz.init(data).then(apiResponse => {
       // Redirect the user to payment gateway
@@ -235,14 +240,19 @@ const trans_id=new ObjectId().toString();
   transactionId:trans_id
  }
 
- const result= paymentCollection.insertOne(finalDeposit)
+ const result= paymentCollections.insertOne(finalDeposit)
+
+
+// }
+// )
       console.log('Redirecting to: ', GatewayPageURL)
-  });
+  }
+  )
 
 
-  app.post('/payment/success/:transId',async(req,res)=>{
+  app.post('/paymentsystem/success/:transId',async(req,res)=>{
     console.log(req.params.transId);
-    const result= await paymentCollection.updateOne({transactionId:req.params.transId},{
+    const result= await paymentCollections.updateOne({transactionId:req.params.transId},{
       $set:{
         depositStatus:true
       }
@@ -250,14 +260,15 @@ const trans_id=new ObjectId().toString();
     )
 
     if( result.modifiedCount>0){
-      res.redirect(`https://localhost:3000/success/${trans_id}`)
+      res.redirect(`http://localhost:3000/userdashboard/success/${trans_id}`)
     }
   })
 
 
-   })
+   }
+   )
 
-   app.get('/payment',async(req,res)=>{
+   app.get('/paymentsystemt',async(req,res)=>{
     const cursor=paymentCollection.find();
     const result=await cursor.toArray();
     res.send(result)
