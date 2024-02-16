@@ -183,6 +183,25 @@ const query={_id: new ObjectId(id)}
 const result=await usersCollection.deleteOne(query);
 res.send(result);
 });
+app.get("/payment", async (req, res) => {
+  const query = req.query.query;
+  const currentPage = parseInt(req.query.currentPage);
+  const filter2 = {
+    "deposit.email": { $regex: "." + query + ".", $options: "i" },
+  };
+  const filter = { email: { $regex: "." + query + ".", $options: "i" } };
+  const result = await paymentCollection
+    .find(filter, filter2)
+    .skip(currentPage * 10)
+    .limit(10)
+    .toArray();
+  res.send(result);
+});
+
+app.get("/paymentCount", async (req, res) => {
+  const count = await paymentCollection.estimatedDocumentCount();
+  res.send({ count });
+});
 
 const trans_id=new ObjectId().toString();
 console.log(trans_id);
@@ -193,7 +212,7 @@ console.log(trans_id);
       total_amount: deposit.amount,
       currency: 'BDT',
       tran_id: trans_id, 
-      success_url: `http://localhost:5000/paymentsystem/success/${trans_id}`,
+      success_url: `https://tradeswift-server.vercel.app/paymentsystem/success/${trans_id}`,
       fail_url: 'http://localhost:3030/fail',
       cancel_url: 'http://localhost:3030/cancel',
       ipn_url: 'http://localhost:3030/ipn',
