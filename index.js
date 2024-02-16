@@ -181,7 +181,7 @@ app.delete('/user/:id',async(req,res)=>{
 const id=req.params.id;
 const query={_id: new ObjectId(id)}
 const result=await usersCollection.deleteOne(query);
-res.send(result)
+res.send(result);
 });
 
 const trans_id=new ObjectId().toString();
@@ -241,7 +241,7 @@ console.log(trans_id);
   )
 
   if( result.modifiedCount>0){
-    res.redirect(`http://localhost:3000/userdashboard/success/${trans_id}`)
+    res.redirect(`https://tradeswift.vercel.app/userdashboard/success/${trans_id}`)
     }
   })
 }
