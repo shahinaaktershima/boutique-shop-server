@@ -105,7 +105,7 @@ const updateDoc = {
   },
 };
 const result = await usersCollection.updateOne(
-  filter,   filter,
+  filter,
   updateDoc,
   options
 );
@@ -265,11 +265,13 @@ console.log(trans_id);
   })
 }
 )
-app.get('/paymentsystemt',async(req,res)=>{
-  const cursor=paymentCollection.find();
+app.get('/paymentsystem',async(req,res)=>{
+  const cursor=paymentCollections.find();
   const result=await cursor.toArray();
   res.send(result)
-})})
+}
+)
+})
   // Send a ping to confirm a successful connection
   await client.db("admin").command({ ping: 1 });
   console.log(
