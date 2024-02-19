@@ -37,7 +37,7 @@ const is_live = false;
 async function run() {
   try {
     // await client.connect();
-  const paymentCollections=client.db('treading-platfrom').collection('paymentsystem')
+  // const paymentCollections=client.db('treading-platfrom').collection('paymentsystem')
   const paymentCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
   const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
@@ -248,11 +248,11 @@ console.log(trans_id);
   deposit,depositStatus:false,
   transactionId:trans_id
  }
- const result= paymentCollections.insertOne(finalDeposit);
+ const result= paymentCollection.insertOne(finalDeposit);
  console.log('Redirecting to: ', GatewayPageURL)
  app.post('/paymentsystem/success/:transId',async(req,res)=>{
   console.log(req.params.transId);
-  const result= await paymentCollections.updateOne({transactionId:req.params.transId},{
+  const result= await paymentCollection.updateOne({transactionId:req.params.transId},{
     $set:{
       depositStatus:true
     }
@@ -266,7 +266,7 @@ console.log(trans_id);
 }
 )
 app.get('/paymentsystem',async(req,res)=>{
-  const cursor=paymentCollections.find();
+  const cursor=paymentCollection.find();
   const result=await cursor.toArray();
   res.send(result)
 }
