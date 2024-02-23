@@ -37,7 +37,7 @@ const is_live = false;
 async function run() {
   try {
     // await client.connect();
-  // const paymentCollections=client.db('treading-platfrom').collection('paymentsystem')
+  
   const paymentCollection=client.db('treading-platfrom').collection('payment')
   const usersCollection=client.db('treading-platfrom').collection('user');
   const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
@@ -155,16 +155,10 @@ app.post('/payment',async(req,res)=>{
   // users related api
   app.get('/user/admin/:email',async(req,res)=>{
     const email=req.params.email;
-    // if(email!== req.decoded.email){
-    // return res.status(403).send({message:'forbidden access'})
-    // }
+    
     const query={email:email};
     const user=await usersCollection.findOne(query);
-    // let admin=false;
-    // if(user){
-    //   admin =user?.role ==='admin';
-    
-    // }
+   
     res.send(user);
     })
     // for admin
@@ -183,7 +177,6 @@ app.post('/payment',async(req,res)=>{
   
     const user=req.body;
     // insert email if user doesn't exist :
-    // you can do this many ways (1.email unique,2. upsert  3.simple checking)
     const query={email:user.email}
     const existingUser=await usersCollection.findOne(query);
     if(existingUser){
@@ -284,16 +277,10 @@ res.send({
 // users related api
 app.get('/user/admin/:email',async(req,res)=>{
   const email=req.params.email;
-  // if(email!== req.decoded.email){
-  // return res.status(403).send({message:'forbidden access'})
-  // }
+  
   const query={email:email};
   const user=await usersCollection.findOne(query);
-  // let admin=false;
-  // if(user){
-  //   admin =user?.role ==='admin';
   
-  // }
   res.send(user);
   })
   // for admin
@@ -312,7 +299,6 @@ app.post('/user',async(req,res)=>{
 
   const user=req.body;
   // insert email if user doesn't exist :
-  
 
   const query={email:user.email}
   const existingUser=await usersCollection.findOne(query);
@@ -353,7 +339,7 @@ app.get("/paymentCount", async (req, res) => {
   const count = await paymentCollection.estimatedDocumentCount();
   res.send({ count });
 });
-
+// payment with sslcommerz
 const trans_id=new ObjectId().toString();
 console.log(trans_id);
    app.post('/paymentsystem',async(req,res)=>{
