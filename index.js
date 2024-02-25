@@ -339,6 +339,19 @@ app.get("/paymentCount", async (req, res) => {
   const count = await paymentCollection.estimatedDocumentCount();
   res.send({ count });
 });
+
+
+// for user payment history
+app.get("/paymenthistory", async (req, res) => {
+  const email = req.query.email;
+  const filter = { email: email };
+  const filter2 = { "deposit.email": email };
+  const result = await paymentCollection.find(filter || filter2).toArray();
+  res.send(result);
+});
+
+
+
 // payment with sslcommerz
 const trans_id=new ObjectId().toString();
 console.log(trans_id);
