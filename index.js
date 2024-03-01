@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const { default: axios } = require("axios");
 const SSLCommerzPayment = require("sslcommerz-lts");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const stripe = require("stripe")(
@@ -74,26 +75,7 @@ async function run() {
       res.send(result);
     });
     // payment with stripe
-    app.put("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const body = req.body;
-      const filter = { email: email };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          name: body.name,
-          birth: body.birth,
-          country: body.country,
-          address: body.address,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
+ 
 
     app.put("/deposit/:email", async (req, res) => {
       const email = req.params.email;
@@ -133,68 +115,11 @@ async function run() {
       );
       res.send(result);
     });
-    app.post("/payment", async (req, res) => {
-      const body = req.body;
-      const result = await paymentCollection.insertOne(body);
-      res.send(result);
-    });
-    //stripe payment system
-    app.post("/create-payment-intent", async (req, res) => {
-      const { price } = req.body;
-      const amount = parseInt(price * 100);
-      // console.log(amount,price);
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
-        payment_method_types: ["card"],
-      });
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
-    });
+  
     // users related api
-    app.get("/user/admin/:email", async (req, res) => {
-      const email = req.params.email;
-
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-
-      res.send(user);
-    });
-    // for admin
-    app.patch("/user/admin/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: {
-          role: "admin",
-        },
-      };
-      const result = await usersCollection.updateOne(filter, updateDoc);
-      res.send(result);
-    });
-    app.post("/user", async (req, res) => {
-      const user = req.body;
-      // insert email if user doesn't exist :
-      const query = { email: user.email };
-      const existingUser = await usersCollection.findOne(query);
-      if (existingUser) {
-        return res.send({ message: "user already exists", insertedId: null });
-      }
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
-    app.get("/user", async (req, res) => {
-      console.log(req.headers);
-      const result = await usersCollection.find().toArray();
-      res.send(result);
-    });
-    // get single blog data api
-    app.get("/blogs/:id", async (req, res) => {
-      const id = req.params.id;
-      const result = await blogsCollection.findOne({ _id: new ObjectId(id) });
-      res.send(result);
-    });
+   
+  
+   
     // payment with stripe
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -219,43 +144,7 @@ async function run() {
       );
       res.send(result);
     });
-    app.put("/deposit/:email", async (req, res) => {
-      const email = req.params.email;
-      const amount = parseInt(req.body.amount);
-      const filter = { email: email };
-      const userInfo = await usersCollection.findOne(filter);
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          balance: amount + userInfo.balance,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
-    app.put("/withdraw/:email", async (req, res) => {
-      const email = req.params.email;
-      const amount = parseInt(req.body.amount);
-      const filter = { email: email };
-      const userInfo = await usersCollection.findOne(filter);
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          balance: userInfo.balance - amount,
-          withdraw: userInfo.withdraw + amount,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
+   
     app.post("/payment", async (req, res) => {
       const body = req.body;
       const result = await paymentCollection.insertOne(body);
@@ -486,6 +375,22 @@ async function run() {
       const result = await usersCollection.updateOne(query,updatedDoc,options)
       res.send(result)
     })
+
+        // start chat features endpoint
+        app.post("/authenticate", async (req, res) => {
+          const { username } = req.body;
+          try {
+            const result = await axios.put(
+              "https://api.chatengine.io/users/",
+              { username: username, secret: username, first_name: username },
+              { headers: { "private-key": "86b4e2fe-8227-4c32-97b4-94df21b723c0" } }
+            );
+            return res.status(result.status).json(result.data);
+          } catch (error) {
+            return res.status(error.response.status).json(error.response.data);
+          }
+        });
+        // end chat features endpoint
     // last
 
     // Send a ping to confirm a successful connection
