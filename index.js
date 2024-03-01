@@ -3,7 +3,6 @@ const cors = require("cors");
 require("dotenv").config();
 const SSLCommerzPayment = require("sslcommerz-lts");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const { default: axios } = require("axios");
 const stripe = require("stripe")(
   "sk_test_51Oh87qCLld7PnE1516qNvATSBs96eemmbFnyg4RcdSzdAUosHn4ibNZVd46EQhOT8erjCliglaZYV574vWlMngRy00OtjExlxj"
 );
@@ -43,26 +42,11 @@ async function run() {
       .db("treading-platfrom")
       .collection("payment");
     const usersCollection = client.db("treading-platfrom").collection("user");
+    const tradeCollection = client.db("treading-platfrom").collection("trading");
     const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
     const tournamentsCollection = client
       .db("tournamentsCollection")
       .collection("tournamnetDb");
-
-    // start chat features endpoint
-    app.post("/authenticate", async (req, res) => {
-      const { username } = req.body;
-      try {
-        const result = await axios.put(
-          "https://api.chatengine.io/users/",
-          { username: username, secret: username, first_name: username },
-          { headers: { "private-key": "86b4e2fe-8227-4c32-97b4-94df21b723c0" } }
-        );
-        return res.status(result.status).json(result.data);
-      } catch (error) {
-        return res.status(error.response.status).json(error.response.data);
-      }
-    });
-    // end chat features endpoint
 
     app.get("/tournament", async (req, res) => {
       const result = await tournamentsCollection.find().toArray();
@@ -438,20 +422,85 @@ async function run() {
         res.send(result);
       });
     });
+
+    //imtiaj
+
+    app.post('/trade',async(req,res)=>{
+      const body = req.body;
+      const result = await tradeCollection.insertOne(body)
+      res.send(result)
+    })
+
+    app.get('/trade',async(req,res)=>{
+      const email = req.query?.email;
+      const query = {}
+      if(email){
+        query.email = email
+      }
+      const result = await tradeCollection.find(query).sort({time: 'asc'}).toArray()
+      res.send(result)
+    })
+
+    app.put('/trade/:id',async(req,res)=>{
+      const id = req.params?.id;
+      const filter = {_id:new ObjectId(id)}
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set:{
+          status : req?.body?.status
+        }
+      }
+      console.log(id,updatedDoc);
+      const result = await tradeCollection.updateOne(filter,updatedDoc,options)
+      res.send(result)
+    })
+
+    app.put('/tradeUserUpdate/:email',async(req,res)=>{
+      const email = req.params?.email;
+      const filter = {email:email}
+      const options = { upsert: true };
+      const user = await usersCollection.findOne(filter)
+      const amount = req.body?.amount
+      const updatedDoc = {
+        $set:{
+          balance : user?.balance + amount,
+          profit: user?.profit + amount 
+        }
+      }
+      const result = await usersCollection.updateOne(filter,updatedDoc,options)
+      res.send(result)
+    })
+
+    app.put('/trade-uodate/:email',async(req,res)=>{
+      const email = req.params?.email;
+      const query = {email:email};
+      const amount = req.body?.amount
+      // console.log(query,amount);
+      const options = { upsert: true };
+      const user = await usersCollection.findOne(query)
+      const updatedDoc = {
+        $set:{
+          balance:user?.balance - amount
+        }
+      }
+      const result = await usersCollection.updateOne(query,updatedDoc,options)
+      res.send(result)
+    })
+    // last
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-  // Ensures that the client will close when you finish/error
-  
-}
+    // Ensures that the client will close when you finish/error
+  }
 }
 run().catch(console.dir);
 app.get("/", (req, res) => {
-res.send("tradeswift is running");
+  res.send("tradeswift is running");
 });
 app.listen(port, () => {
-console.log(`tradeswift is running on port ${port}`);
+  console.log(`tradeswift is running on port ${port}`);
 });
