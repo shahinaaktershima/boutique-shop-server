@@ -486,6 +486,7 @@ async function run() {
       const result = await usersCollection.updateOne(query,updatedDoc,options)
       res.send(result)
     })
+    // last
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
