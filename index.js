@@ -437,7 +437,7 @@ async function run() {
       if(email){
         query.email = email
       }
-      const result = await tradeCollection.find(query).sort({time: 'desc'}).toArray()
+      const result = await tradeCollection.find(query).sort({time: 'asc'}).toArray()
       res.send(result)
     })
 
