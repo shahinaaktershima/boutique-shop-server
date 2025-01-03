@@ -49,8 +49,24 @@ async function run() {
    const blogsCollection=client.db('clothCollection').collection('blogs')
 
     
+// products 
+app.post('/product',async(req,res)=>{
+  const product=req.body;
+  console.log(product);
+  const result=await clothCollection.insertOne(product);
+  res.send(result)
+})
+app.get('/product',async(req,res)=>{
+const result=await clothCollection.find().toArray();
+res.send(result);
+})
+app.delete('/product/:id',async(req,res)=>{
+  const id=req.params.id;
+  const query={_id:new ObjectId(id)}
+  const result=await clothCollection.deleteOne(query);
+  res.send(result)
 
-   
+})
 
     // get all blog data api
     app.get("/blogs", async (req, res) => {
@@ -85,25 +101,6 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/withdraw/:email", async (req, res) => {
-      const email = req.params.email;
-      const amount = parseInt(req.body.amount);
-      const filter = { email: email };
-      const userInfo = await usersCollection.findOne(filter);
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          balance: userInfo.balance - amount,
-          withdraw: userInfo.withdraw + amount,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
   
     // users related api
    
@@ -140,20 +137,7 @@ async function run() {
       res.send(result);
     });
     //stripe payment system
-    app.post("/create-payment-intent", async (req, res) => {
-      const { price } = req.body;
-      const amount = parseInt(price * 100);
-      // console.log(amount,price);
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
-        payment_method_types: ["card"],
-      });
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
-    });
-
+  
     // users related api
     app.get("/user/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -199,7 +183,7 @@ async function run() {
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/payment", async (req, res) => {
+    app.get("/paymentsystem", async (req, res) => {
       const query = req.query.query;
       const currentPage = parseInt(req.query.currentPage);
       const filter2 = {
@@ -290,7 +274,7 @@ async function run() {
 
           if (result.modifiedCount > 0) {
             res.redirect(
-              `http://localhost:5000/userdashboard/success/${trans_id}`
+              'http://localhost:3000/userdashboard'
             );
           }
         });
@@ -301,86 +285,6 @@ async function run() {
         res.send(result);
       });
     });
-
-    //imtiaj
-
-    app.post('/trade',async(req,res)=>{
-      const body = req.body;
-      const result = await tradeCollection.insertOne(body)
-      res.send(result)
-    })
-
-    app.get('/trade',async(req,res)=>{
-      const email = req.query?.email;
-      const query = {}
-      if(email){
-        query.email = email
-      }
-      const result = await tradeCollection.find(query).sort({time: 'asc'}).toArray()
-      res.send(result)
-    })
-
-    app.put('/trade/:id',async(req,res)=>{
-      const id = req.params?.id;
-      const filter = {_id:new ObjectId(id)}
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set:{
-          status : req?.body?.status
-        }
-      }
-      console.log(id,updatedDoc);
-      const result = await tradeCollection.updateOne(filter,updatedDoc,options)
-      res.send(result)
-    })
-
-    app.put('/tradeUserUpdate/:email',async(req,res)=>{
-      const email = req.params?.email;
-      const filter = {email:email}
-      const options = { upsert: true };
-      const user = await usersCollection.findOne(filter)
-      const amount = req.body?.amount
-      const updatedDoc = {
-        $set:{
-          balance : user?.balance + amount,
-          profit: user?.profit + amount 
-        }
-      }
-      const result = await usersCollection.updateOne(filter,updatedDoc,options)
-      res.send(result)
-    })
-
-    app.put('/trade-uodate/:email',async(req,res)=>{
-      const email = req.params?.email;
-      const query = {email:email};
-      const amount = req.body?.amount
-      // console.log(query,amount);
-      const options = { upsert: true };
-      const user = await usersCollection.findOne(query)
-      const updatedDoc = {
-        $set:{
-          balance:user?.balance - amount
-        }
-      }
-      const result = await usersCollection.updateOne(query,updatedDoc,options)
-      res.send(result)
-    })
-
-        // start chat features endpoint
-        app.post("/authenticate", async (req, res) => {
-          const { username } = req.body;
-          try {
-            const result = await axios.put(
-              "https://api.chatengine.io/users/",
-              { username: username, secret: username, first_name: username },
-              { headers: { "private-key": "86b4e2fe-8227-4c32-97b4-94df21b723c0" } }
-            );
-            return res.status(result.status).json(result.data);
-          } catch (error) {
-            return res.status(error.response.status).json(error.response.data);
-          }
-        });
-        // end chat features endpoint
     // last
 
     // Send a ping to confirm a successful connection
