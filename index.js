@@ -22,7 +22,8 @@ app.use(
     credentials: true,
   })
 );
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d25u3si.mongodb.net/?retryWrites=true&w=majority`;
+const uri =`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hfsk54e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+
 console.log(uri);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -30,7 +31,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  },
+  }
 });
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
@@ -39,29 +40,17 @@ async function run() {
   try {
     // await client.connect();
 
-    const paymentCollection = client
-      .db("treading-platfrom")
+   
+      const paymentCollection = client
+      .db("clothCollection")
       .collection("payment");
-    const usersCollection = client.db("treading-platfrom").collection("user");
-    const tradeCollection = client.db("treading-platfrom").collection("trading");
-    const blogsCollection = client.db("tradeSwiftDB").collection("blogs");
-    const tournamentsCollection = client
-      .db("tournamentsCollection")
-      .collection("tournamnetDb");
+    const clothCollection=client.db('clothCollection').collection('product');
+ const usersCollection=client.db('usercollect').collection('user');
+   const blogsCollection=client.db('clothCollection').collection('blogs')
 
-    app.get("/tournament", async (req, res) => {
-      const result = await tournamentsCollection.find().toArray();
-      res.send(result);
-    });
+    
 
-    app.get("/tournament/details/:id", async (req, res) => {
-      const id = req.params.id;
-
-      const result = await tournamentsCollection.findOne({
-        _id: new ObjectId(id),
-      });
-      res.send(result);
-    });
+   
 
     // get all blog data api
     app.get("/blogs", async (req, res) => {
@@ -164,6 +153,7 @@ async function run() {
         clientSecret: paymentIntent.client_secret,
       });
     });
+
     // users related api
     app.get("/user/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -248,7 +238,7 @@ async function run() {
         total_amount: deposit.amount,
         currency: "BDT",
         tran_id: trans_id,
-        success_url: `https://tradeswift-server.vercel.app/paymentsystem/success/${trans_id}`,
+        success_url: `http://localhost:5000/paymentsystem/success/${trans_id}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
@@ -300,7 +290,7 @@ async function run() {
 
           if (result.modifiedCount > 0) {
             res.redirect(
-              `https://tradeswift.vercel.app/userdashboard/success/${trans_id}`
+              `http://localhost:5000/userdashboard/success/${trans_id}`
             );
           }
         });
