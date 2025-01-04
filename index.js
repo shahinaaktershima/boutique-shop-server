@@ -16,8 +16,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5000",
-      "https://tradeswift.vercel.app",
-      "https://tradeswift-git-main-shimas-projects.vercel.app",
+      "https://boutique-shop-five.vercel.app",
+      "https://boutique-shop-git-main-shahinaaktershimas-projects.vercel.app",
     ],
     credentials: true,
   })
@@ -183,20 +183,20 @@ app.delete('/product/:id',async(req,res)=>{
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/paymentsystem", async (req, res) => {
-      const query = req.query.query;
-      const currentPage = parseInt(req.query.currentPage);
-      const filter2 = {
-        "deposit.email": { $regex: "." + query + ".", $options: "i" },
-      };
-      const filter = { email: { $regex: "." + query + ".", $options: "i" } };
-      const result = await paymentCollection
-        .find(filter, filter2)
-        .skip(currentPage * 10)
-        .limit(10)
-        .toArray();
-      res.send(result);
-    });
+    // app.get("/paymentsystem", async (req, res) => {
+    //   const query = req.query.query;
+    //   const currentPage = parseInt(req.query.currentPage);
+    //   const filter2 = {
+    //     "deposit.email": { $regex: "." + query + ".", $options: "i" },
+    //   };
+    //   const filter = { email: { $regex: "." + query + ".", $options: "i" } };
+    //   const result = await paymentCollection
+    //     .find(filter, filter2)
+    //     .skip(currentPage * 10)
+    //     .limit(10)
+    //     .toArray();
+    //   res.send(result);
+    // });
 
     app.get("/paymentCount", async (req, res) => {
       const count = await paymentCollection.estimatedDocumentCount();
@@ -222,7 +222,7 @@ app.delete('/product/:id',async(req,res)=>{
         total_amount: deposit.amount,
         currency: "BDT",
         tran_id: trans_id,
-        success_url: `http://localhost:5000/paymentsystem/success/${trans_id}`,
+        success_url: `https://boutique-server.vercel.app/paymentsystem/success/${trans_id}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
@@ -274,7 +274,7 @@ app.delete('/product/:id',async(req,res)=>{
 
           if (result.modifiedCount > 0) {
             res.redirect(
-              'http://localhost:3000/userdashboard'
+              'https://boutique-shop-five.vercel.app/userdashboard'
             );
           }
         });
@@ -298,8 +298,8 @@ app.delete('/product/:id',async(req,res)=>{
 }
 run().catch(console.dir);
 app.get("/", (req, res) => {
-  res.send("tradeswift is running");
+  res.send("boutique shop is running");
 });
 app.listen(port, () => {
-  console.log(`tradeswift is running on port ${port}`);
+  console.log(`Boutique shop is running on port ${port}`);
 });
