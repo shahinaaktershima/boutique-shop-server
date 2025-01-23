@@ -274,7 +274,7 @@ app.delete('/product/:id',async(req,res)=>{
 
           if (result.modifiedCount > 0) {
             res.redirect(
-              'https://boutique-shop-five.vercel.app/userdashboard'
+              'https://boutique-shop-five.vercel.app/userdashboard/success'
             );
           }
         });
